@@ -6,41 +6,53 @@ import joblib
 import datetime
 
 # ------------------------------
-# 🎨 Custom Background & Styles
+# 🎨 Black Background & Styles
 # ------------------------------
 st.markdown(
     """
     <style>
-    /* App background gradient */
+    /* App black background */
     .stApp {
-        background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-        color: #333333;
+        background-color: #000000;
+        color: #ffffff;
         font-family: 'Segoe UI', sans-serif;
     }
 
     /* Title style */
     .stTitle {
-        color: #1f4e79;
+        color: #00ffea;  /* bright cyan */
         font-size: 38px;
         font-weight: bold;
     }
 
     /* Sidebar header style */
     .css-1d391kg h2 {
-        color: #1f4e79;
+        color: #00ffea;
     }
 
     /* Button hover effect */
     div.stButton > button:hover {
-        background-color: #1f4e79;
-        color: white;
+        background-color: #00ffea;
+        color: #000000;
     }
 
     /* Previous predictions table card */
     div[data-testid="stDataFrameContainer"] {
-        background-color: rgba(255, 255, 255, 0.8);
+        background-color: rgba(50, 50, 50, 0.8);
         border-radius: 10px;
         padding: 10px;
+        color: #ffffff;
+    }
+
+    /* Table header color */
+    div[data-testid="stDataFrameContainer"] th {
+        color: #00ffea;
+    }
+
+    /* Info & success messages */
+    .stAlert {
+        background-color: #222222;
+        color: #00ffea;
     }
     </style>
     """,
@@ -52,7 +64,7 @@ st.markdown(
 # ------------------------------
 model_path = os.path.join(os.path.dirname(__file__), "model", "vehicle_price_model.joblib")
 model = joblib.load(model_path)
-st.success("✅ Model Loaded Successfully – Ready to Predict!")
+st.success("✅ Model Loaded Successfully – Ready to Predict!", icon="🚀")
 
 st.set_page_config(page_title="Vehicle Price Prediction", page_icon="🚗", layout="centered")
 
@@ -105,7 +117,7 @@ if st.button("🔮 Predict Vehicle Price"):
         "make": [make],
         "model": [model_name],
         "year": [year],
-        "age": [age],           # <-- added
+        "age": [age],
         "mileage": [mileage],
         "fuel": [fuel],
         "transmission": [transmission],
@@ -161,4 +173,3 @@ else:
 # ------------------------------
 st.markdown("---")
 st.caption("Developed by **Achal Urs S** | Vehicle Price Prediction ML App 🚗")
-    
