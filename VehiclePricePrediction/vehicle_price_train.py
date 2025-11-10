@@ -22,9 +22,6 @@ print("Columns:", df.columns.tolist())
 # 2. Drop rows with missing price
 df = df.dropna(subset=["price"]).reset_index(drop=True)
 
-# 3. Derived feature
-
-
 # 4. Select relevant features
 features = [
     "make", "model", "year", "mileage", "cylinders",
@@ -91,3 +88,4 @@ os.makedirs("model", exist_ok=True)
 joblib.dump(model, "model/vehicle_price_model.joblib")
 
 print("\n💾 Model saved to: model/vehicle_price_model.joblib")
+
