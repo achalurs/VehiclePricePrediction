@@ -14,6 +14,12 @@ st.set_page_config(page_title="Vehicle Price Prediction", page_icon="🚗", layo
 # ------------------------------
 # 🎨 App Title and Description
 # ------------------------------
+st.set_page_config(
+    page_title="Vehicle Price Prediction",
+    page_icon="🚗",
+    layout="centered"
+)
+
 st.title("🚗 Vehicle Price Prediction")
 st.markdown("""
 This app predicts **vehicle prices** based on their specifications using a trained Machine Learning model.  
