@@ -91,7 +91,7 @@ st.sidebar.info(
 # ------------------------------
 st.header("Enter Vehicle Details")
 
-make = st.text_input("🚘 Make (e.g., Toyota, Ford)")
+make = st.text_input("🚘 Vehicle Name (e.g., Toyota, Ford)")
 model_name = st.text_input("🚙 Model (e.g., Corolla, Mustang)")
 year = st.number_input("📅 Year", min_value=1990, max_value=2025, value=2018)
 mileage = st.number_input("🛣 Mileage (in miles)", min_value=0, max_value=500000, value=50000)
