@@ -1,82 +1,112 @@
-# app.py
-# Streamlit app for Vehicle Price Prediction (with History + CSV Download)
 import streamlit as st
 import pandas as pd
+import numpy as np
 import joblib
+import os
 
-# Load trained model
-model = joblib.load("model/vehicle_price_model.joblib")
+# ------------------------------
+# ✅ Load the trained model safely
+# ------------------------------
+model_path = os.path.join(os.path.dirname(__file__), "model", "vehicle_price_model.joblib")
+model = joblib.load(model_path)
 
 st.set_page_config(page_title="Vehicle Price Prediction", page_icon="🚗", layout="centered")
 
-st.title("🚗 Vehicle Price Prediction App")
-st.write("Enter vehicle details below to predict its price.")
+# ------------------------------
+# 🎨 App Title and Description
+# ------------------------------
+st.title("🚗 Vehicle Price Prediction")
+st.markdown("""
+This app predicts **vehicle prices** based on their specifications using a trained Machine Learning model.  
+Fill in the details below to estimate the price of your vehicle.
+""")
 
-# --- Initialize session state for storing predictions ---
-if "history" not in st.session_state:
-    st.session_state.history = []
+# ------------------------------
+# 🧾 Sidebar Information
+# ------------------------------
+st.sidebar.header("About")
+st.sidebar.info(
+    "Developed by **Achal Urs S**\n\n"
+    "Built with Python, Scikit-learn, and Streamlit."
+)
 
-# --- User Inputs ---
-make = st.text_input("Make (e.g., Toyota, Ford, BMW)")
-model_name = st.text_input("Model (e.g., Camry, F-150, X5)")
-year = st.number_input("Year", min_value=1990, max_value=2025, value=2024)
-mileage = st.number_input("Mileage (in miles)", min_value=0, value=10)
-cylinders = st.number_input("Cylinders", min_value=2, max_value=12, value=4)
-fuel = st.selectbox("Fuel Type", ["Gasoline", "Diesel", "Electric", "Hybrid", "Other"])
-transmission = st.selectbox("Transmission", ["Automatic", "Manual", "Other"])
-body = st.selectbox("Body Type", ["SUV", "Sedan", "Pickup Truck", "Hatchback", "Other"])
-doors = st.selectbox("Doors", [2, 3, 4, 5])
-drivetrain = st.selectbox("Drivetrain", [
-    "Front-wheel Drive", "Rear-wheel Drive", "All-wheel Drive", "Four-wheel Drive", "Other"
-])
+# ------------------------------
+# 📋 User Input Section
+# ------------------------------
+st.header("Enter Vehicle Details")
 
-# Derived feature
-age = 2025 - year
+make = st.text_input("Make (e.g. Toyota, Ford)")
+model_name = st.text_input("Model (e.g. Corolla, Mustang)")
+year = st.number_input("Year", min_value=1990, max_value=2025, value=2018)
+mileage = st.number_input("Mileage (in miles)", min_value=0, max_value=500000, value=50000)
+fuel = st.selectbox("Fuel Type", ["Gasoline", "Diesel", "Electric", "Hybrid"])
+transmission = st.selectbox("Transmission", ["Automatic", "Manual"])
+body = st.selectbox("Body Type", ["SUV", "Sedan", "Hatchback", "Truck", "Coupe", "Van"])
+drivetrain = st.selectbox("Drivetrain", ["FWD", "RWD", "AWD", "4WD"])
+cylinders = st.number_input("Cylinders", min_value=2, max_value=16, value=4)
+doors = st.number_input("Doors", min_value=2, max_value=6, value=4)
 
-# Prepare data for prediction
-input_data = pd.DataFrame([{
-    "make": make,
-    "model": model_name,
-    "year": year,
-    "age": age,
-    "mileage": mileage,
-    "cylinders": cylinders,
-    "fuel": fuel,
-    "transmission": transmission,
-    "body": body,
-    "doors": doors,
-    "drivetrain": drivetrain
-}])
+# ------------------------------
+# 📊 Predict Button
+# ------------------------------
+if st.button("🔮 Predict Vehicle Price"):
+    # Create input DataFrame
+    input_data = pd.DataFrame({
+        "make": [make],
+        "model": [model_name],
+        "year": [year],
+        "mileage": [mileage],
+        "fuel": [fuel],
+        "transmission": [transmission],
+        "body": [body],
+        "drivetrain": [drivetrain],
+        "cylinders": [cylinders],
+        "doors": [doors]
+    })
 
-# --- Prediction Button ---
-if st.button("🔮 Predict Price"):
-    prediction = model.predict(input_data)[0]
-    st.success(f"💰 Estimated Vehicle Price: **${prediction:,.2f}**")
+    # Predict
+    try:
+        predicted_price = model.predict(input_data)[0]
+        st.success(f"💰 Estimated Vehicle Price: **${predicted_price:,.2f}**")
 
-    # Add prediction to session state
-    record = input_data.copy()
-    record["Predicted Price ($)"] = round(prediction, 2)
-    st.session_state.history.append(record)
+        # Save prediction in session state
+        if "history" not in st.session_state:
+            st.session_state.history = []
+        st.session_state.history.append({
+            "Make": make,
+            "Model": model_name,
+            "Year": year,
+            "Mileage": mileage,
+            "Fuel": fuel,
+            "Predicted Price ($)": round(predicted_price, 2)
+        })
 
-# --- Display Prediction History ---
-if st.session_state.history:
-    st.markdown("### 📋 Previous Predictions")
-    history_df = pd.concat(st.session_state.history, ignore_index=True)
-    st.dataframe(history_df)
+    except Exception as e:
+        st.error("❌ Unable to predict. Please check your inputs.")
+        st.error(str(e))
 
-    # Download button
-    csv = history_df.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        label="⬇️ Download Predictions as CSV",
-        data=csv,
-        file_name="vehicle_price_predictions.csv",
-        mime="text/csv"
-    )
+# ------------------------------
+# 📈 Show Previous Predictions
+# ------------------------------
+st.subheader("📜 Previous Predictions")
 
-    # Clear button
+if "history" in st.session_state and len(st.session_state.history) > 0:
+    df_history = pd.DataFrame(st.session_state.history)
+    st.dataframe(df_history)
+
+    # Download as CSV
+    csv = df_history.to_csv(index=False).encode("utf-8")
+    st.download_button("⬇️ Download History as CSV", csv, "vehicle_predictions.csv", "text/csv")
+
+    # Clear history
     if st.button("🧹 Clear History"):
         st.session_state.history = []
-        st.success("Previous predictions cleared!")
+        st.experimental_rerun()
+else:
+    st.info("No previous predictions yet.")
 
+# ------------------------------
+# ✅ Footer
+# ------------------------------
 st.markdown("---")
-st.caption("Developed by Achal Urs S — Vehicle Price Prediction Project")
+st.caption("Developed by **Achal Urs S** | Vehicle Price Prediction ML App 🚗")
