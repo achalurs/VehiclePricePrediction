@@ -23,11 +23,11 @@ print("Columns:", df.columns.tolist())
 df = df.dropna(subset=["price"]).reset_index(drop=True)
 
 # 3. Derived feature
-df["age"] = df["year"].max() - df["year"]
+
 
 # 4. Select relevant features
 features = [
-    "make", "model", "year", "age", "mileage", "cylinders",
+    "make", "model", "year", "mileage", "cylinders",
     "fuel", "transmission", "body", "doors", "drivetrain"
 ]
 features = [c for c in features if c in df.columns]
@@ -43,7 +43,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 print("Train shape:", X_train.shape, "Test shape:", X_test.shape)
 
 # 6. Preprocessing
-numeric_features = [c for c in ["year", "age", "mileage", "cylinders", "doors"] if c in X_train.columns]
+numeric_features = [c for c in ["year", "mileage", "cylinders", "doors"] if c in X_train.columns]
 categorical_features = [c for c in features if c not in numeric_features]
 
 numeric_transformer = Pipeline(steps=[
@@ -89,4 +89,5 @@ print(f"R²  : {r2:.3f}")
 # 10. Save model
 os.makedirs("model", exist_ok=True)
 joblib.dump(model, "model/vehicle_price_model.joblib")
+
 print("\n💾 Model saved to: model/vehicle_price_model.joblib")
